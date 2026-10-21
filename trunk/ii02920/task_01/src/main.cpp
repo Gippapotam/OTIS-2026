@@ -12,6 +12,11 @@
 #include <stdexcept>
 #include <string>
 
+class SimulationError final : public std::runtime_error {
+public:
+    using std::runtime_error::runtime_error;
+};
+
 // Прототипы функций.
 int readInt(const std::string& prompt, int defaultValue, int minimum, int maximum);
 double readDouble(const std::string& prompt, double defaultValue);
@@ -61,6 +66,8 @@ int main() {
         case 3:
             model = std::make_unique<Model3_10>(a, b, dt, y0);
             break;
+        default:
+            throw SimulationError("Unknown model selection.");
         }
 
         std::cout << "\nModel: " << model->name() << '\n';
@@ -69,7 +76,7 @@ int main() {
                       << "Continue simulation? (y/n): ";
             std::string answer;
             if (!std::getline(std::cin, answer)) {
-                throw std::runtime_error("Input ended before all parameters were entered.");
+                throw SimulationError("Input ended before all parameters were entered.");
             }
             if (answer != "y" && answer != "Y") {
                 std::cout << "Cancelled by user.\n";
@@ -95,11 +102,13 @@ int main() {
         case 3:
             signal = std::make_unique<HarmonicInput>();
             break;
+        default:
+            throw SimulationError("Unknown input signal selection.");
         }
 
         int n = readInt("Enter number of simulation steps n", 20, 1, 10000);
         if (choice == 3 && !std::isfinite(n * dt)) {
-            throw std::runtime_error("Final time is too large. Reduce dt or n.");
+            throw SimulationError("Final time is too large. Reduce dt or n.");
         }
         std::cout << "Signal: " << signal->name() << '\n';
         if (!simulate(*model, *signal, n)) {
@@ -121,15 +130,14 @@ int readInt(const std::string& prompt, int defaultValue, int minimum, int maximu
         std::cout << prompt << " [default " << defaultValue << "]: ";
         std::string line;
         if (!std::getline(std::cin, line)) {
-            throw std::runtime_error("Input ended before all parameters were entered.");
+            throw SimulationError("Input ended before all parameters were entered.");
         }
         if (line.find_first_not_of(" \t\r") == std::string::npos) {
             return defaultValue;
         }
         std::istringstream input(line);
         int value = 0;
-        char extra = 0;
-        if ((input >> value) && !(input >> extra) &&
+        if (char extra = 0; (input >> value) && !(input >> extra) &&
             value >= minimum && value <= maximum) {
             return value;
         }
@@ -142,15 +150,14 @@ double readDouble(const std::string& prompt, double defaultValue) {
         std::cout << prompt << " [default " << defaultValue << "]: ";
         std::string line;
         if (!std::getline(std::cin, line)) {
-            throw std::runtime_error("Input ended before all parameters were entered.");
+            throw SimulationError("Input ended before all parameters were entered.");
         }
         if (line.find_first_not_of(" \t\r") == std::string::npos) {
             return defaultValue;
         }
         std::istringstream input(line);
         double value = 0.0;
-        char extra = 0;
-        if ((input >> value) && !(input >> extra) && std::isfinite(value)) {
+        if (char extra = 0; (input >> value) && !(input >> extra) && std::isfinite(value)) {
             return value;
         }
         std::cout << "Enter a finite number; use a dot as the decimal separator.\n";
