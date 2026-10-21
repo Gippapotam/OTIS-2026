@@ -9,7 +9,8 @@
 <p align="center">Вариант 25</p>
 <br><br><br>
 <p align="right">Выполнил:</p>
-<p align="right">Студент 2 курса группы ИИ-29</p>
+<p align="right">Студент 2 курса</p>
+<p align="right">группы ИИ-29</p>
 <p align="right">Плисюк К. В.</p>
 <p align="right">Проверил:</p>
 <p align="right">Дворанинович Д.А.</p>
