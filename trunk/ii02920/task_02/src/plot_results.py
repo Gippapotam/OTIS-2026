@@ -2,12 +2,10 @@
 """График двух столбцов result.csv без установки дополнительных пакетов."""
 import csv
 import sys
-from pathlib import Path
 
 
 def draw(source, destination):
-    with Path(source).open(encoding="utf-8", newline="") as stream:
-        rows = list(csv.DictReader(stream))
+    rows = list(csv.DictReader(source))
     times = [int(row["tau"]) for row in rows]
     inputs = [float(row["u_tau"]) for row in rows]
     outputs = [float(row["y_tau"]) for row in rows]
@@ -35,7 +33,7 @@ def draw(source, destination):
         py = 370 - 258 * tick / 4
         svg.append(f'<path d="M110 {py}H890" stroke="#dbe2e8"/>')
         svg.append(f'<text x="98" y="{py+5}" text-anchor="end" font-size="14">{level*scale:.3g}</text>')
-    for tick in sorted(set(round(times[-1] * i / 5) for i in range(6))):
+    for tick in sorted({round(times[-1] * i / 5) for i in range(6)}):
         svg.append(f'<text x="{x(tick)}" y="393" text-anchor="middle" font-size="14">{tick}</text>')
     svg.append('<text x="500" y="430" text-anchor="middle">Номер шага τ</text>')
     for series, color, dashed, label, left in [
@@ -51,8 +49,11 @@ def draw(source, destination):
         svg.append(f'<path d="M{left} 67h32" stroke="{color}" stroke-width="3" {dash}/>')
         svg.append(f'<text x="{left+39}" y="72" font-size="16">{label}</text>')
     svg.append('</g></svg>')
-    Path(destination).write_text('\n'.join(svg), encoding='utf-8')
+    destination.write('\n'.join(svg))
 
 
 if __name__ == '__main__':
-    draw(sys.argv[1], sys.argv[2])
+    if len(sys.argv) != 1:
+        sys.exit("Usage: python3 plot_results.py < result.csv > graph.svg")
+    sys.stdout.reconfigure(encoding="utf-8")
+    draw(sys.stdin, sys.stdout)

@@ -2,7 +2,6 @@
 #include <cmath>
 #include <iomanip>
 #include <ostream>
-#include <stdexcept>
 
 void simulate(Model& model, const InputSignal& signal, int steps,
               std::ostream& csv, std::ostream& console) {
@@ -16,7 +15,7 @@ void simulate(Model& model, const InputSignal& signal, int steps,
         console << std::setw(6) << tau << std::setw(18) << u
                 << std::setw(18) << model.value() << '\n';
         if (tau < steps && !std::isfinite(model.next(u))) {
-            throw std::overflow_error("Numerical overflow at step " + std::to_string(tau + 1)
+            throw SimulationError("Numerical overflow at step " + std::to_string(tau + 1)
                                       + ". The CSV contains the completed rows.");
         }
     }

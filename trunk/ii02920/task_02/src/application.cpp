@@ -8,13 +8,12 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
-#include <stdexcept>
 
 namespace {
 std::string readLine(std::istream& input) {
     std::string line;
     if (!std::getline(input, line))
-        throw std::runtime_error("Input ended before all parameters were entered.");
+        throw SimulationError("Input ended before all parameters were entered.");
     return line;
 }
 
@@ -27,8 +26,7 @@ T readNumber(std::istream& input, std::ostream& output, const char* prompt,
         if (line.find_first_not_of(" \t\r") == std::string::npos) return fallback;
         std::istringstream parser(line);
         T value{};
-        char extra;
-        if ((parser >> value) && !(parser >> extra) && valid(value)) return value;
+        if (char extra{}; (parser >> value) && !(parser >> extra) && valid(value)) return value;
         output << "Invalid value. Please try again.\n";
     }
 }
@@ -83,17 +81,17 @@ int runApplication(std::istream& input, std::ostream& output, std::ostream& erro
         const int steps = readNumber(input, output, "Number of steps (1-10000)", 20,
                                      [](int n) { return n >= 1 && n <= 10000; });
         if (type == 3 && !std::isfinite(dt * steps))
-            throw std::runtime_error("Final time is too large.");
+            throw SimulationError("Final time is too large.");
 
         std::ofstream csv(csvPath);
-        if (!csv) throw std::runtime_error("Cannot create the CSV file.");
+        if (!csv) throw SimulationError("Cannot create the CSV file.");
         output << "Signal: " << signal->name() << '\n';
         simulate(*model, *signal, steps, csv, output);
         csv.close();
-        if (!csv) throw std::runtime_error("Failed to write the CSV file.");
+        if (!csv) throw SimulationError("Failed to write the CSV file.");
         output << "Results saved to " << csvPath.string() << '\n';
         return 0;
-    } catch (const std::exception& error) {
+    } catch (const SimulationError& error) {
         errors << "ERROR: " << error.what() << '\n';
         return 1;
     }

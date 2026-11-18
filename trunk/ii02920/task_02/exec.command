@@ -11,7 +11,8 @@ trap 'rm -rf "$work"' EXIT
 (cd "$work" && "$build/src/ii02920_task02")
 if [[ -f "$work/result.csv" ]]; then
     cp "$work/result.csv" "$base/result.csv"
-    python3 "$base/src/plot_results.py" "$base/result.csv" "$base/graph.svg"
+    python3 "$base/src/plot_results.py" < "$work/result.csv" > "$work/graph.svg"
+    mv -f "$work/graph.svg" "$base/graph.svg"
     echo "График: $base/graph.svg"
     if [[ "${1:-}" != "--no-open" ]]; then
         open -a Safari "$base/graph.svg"

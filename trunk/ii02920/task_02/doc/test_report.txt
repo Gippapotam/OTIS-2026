@@ -108,4 +108,4 @@ Test project build-coverage
 
 100% tests passed out of 53
 
-Total Test time (real) =   0.93 sec
+Total Test time (real) =   1.02 sec
